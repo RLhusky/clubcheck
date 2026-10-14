@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Check in · ClubCheck</title>
+<style>
+  :root { --ground: #F6F5F3; --ink: #17161B; --muted: #6A6870; --line: #E3E0DC; --maroon: #861F2C; --green: #1F7A4D; --card: #fff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.45 -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 420px; margin: 0 auto; padding: 56px 20px 40px; }
+  .eyebrow { color: var(--maroon); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font-size: 30px; line-height: 1.12; margin: 0 0 6px; letter-spacing: -.01em; }
+  p { color: var(--muted); margin: 0 0 22px; }
+  label { display: block; font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  input { width: 100%; font: inherit; padding: 14px 15px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin: 0 0 14px; outline: none; }
+  input:focus { border-color: var(--maroon); }
+  button, a.button { display: block; width: 100%; text-align: center; padding: 16px; border-radius: 16px; border: 0; background: var(--maroon); color: #fff; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  button:disabled { opacity: .55; }
+  a.quiet { display: block; text-align: center; color: var(--muted); font-size: 15px; margin-top: 18px; }
+  .error { color: #B3261E; font-size: 15px; min-height: 22px; margin: -4px 0 10px; }
+  .done { text-align: center; padding-top: 40px; }
+  .check { width: 76px; height: 76px; border-radius: 38px; background: var(--green); color: #fff; font-size: 42px; line-height: 76px; margin: 0 auto 18px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <section id="loading"><p>Checking the code…</p></section>
+
+  <section id="form" class="hidden">
+    <p class="eyebrow" id="club"></p>
+    <h1>Check in</h1>
+    <p id="meeting"></p>
+    <form id="f" novalidate>
+      <label for="name">Your name</label>
+      <input id="name" autocomplete="name" autocapitalize="words" maxlength="100" required>
+      <label for="email">Email</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="200" placeholder="you@uchicago.edu" required>
+      <div class="error" id="err"></div>
+      <button id="go" type="submit">Check in</button>
+    </form>
+    <a class="quiet" id="app" href="#">Have the ClubCheck app? Open it instead</a>
+  </section>
+
+  <section id="done" class="done hidden">
+    <div class="check">✓</div>
+    <h1 id="doneTitle">You’re checked in</h1>
+    <p id="doneBody"></p>
+  </section>
+
+  <section id="fail" class="done hidden">
+    <h1 id="failTitle"></h1>
+    <p id="failBody"></p>
+  </section>
+</main>
+<script>
+  var API = "https://svggedqmvvupxczzvaum.supabase.co/rest/v1/rpc/";
+  var KEY = "sb_publishable_RNjFByH2FhVmPs4HN9zvDw_s_pVAidA";
+  var q = new URLSearchParams(location.search);
+  var meetingId = q.get("m"), token = q.get("t"), clubId = q.get("c"), slide = q.get("s");
+  var ticket = null;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function show(id) {
+    ["loading", "form", "done", "fail"].forEach(function (s) { $(s).classList.toggle("hidden", s !== id); });
+  }
+  function fail(title, body) { $("failTitle").textContent = title; $("failBody").textContent = body; show("fail"); }
+  function rpc(fn, args) {
+    return fetch(API + fn, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: KEY, Authorization: "Bearer " + KEY },
+      body: JSON.stringify(args)
+    }).then(function (r) {
+      return r.json().then(function (body) {
+        if (!r.ok) throw new Error(body && body.message || "Something went wrong.");
+        return body;
+      });
+    });
+  }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  // A random id for this browser, so one phone can't check in a whole group.
+  var browser = store("cc_browser");
+  if (!browser) {
+    browser = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+    store("cc_browser", browser);
+  }
+  $("name").value = store("cc_name") || "";
+  $("email").value = store("cc_email") || "";
+
+  var MESSAGES = {
+    expired: ["That code expired", "The code on the officer’s phone changes every few seconds. Scan the one on screen now."],
+    no_meeting: ["Check-in isn’t open", "This meeting isn’t taking check-ins right now. Ask an officer to start check-in, then scan again."],
+    rejected: ["This phone already checked someone in", "Each person checks in on their own phone. Ask an officer if you need help."]
+  };
+
+  var open = clubId && slide
+    ? rpc("web_checkin_open_slide", { p_club_id: clubId, p_code: slide })
+    : meetingId && token
+      ? rpc("web_checkin_open", { p_meeting_id: meetingId, p_token: token })
+      : Promise.reject(new Error("bad"));
+
+  if (meetingId && token) {
+    $("app").href = "clubcheck://checkin?m=" + encodeURIComponent(meetingId) + "&t=" + encodeURIComponent(token);
+  } else {
+    $("app").classList.add("hidden");
+  }
+
+  open.then(function (r) {
+    if (r.status !== "ok") return fail.apply(null, MESSAGES[r.status] || MESSAGES.expired);
+    ticket = r.ticket;
+    $("club").textContent = r.club_name;
+    $("meeting").textContent = r.meeting_title;
+    show("form");
+    if (!$("name").value) $("name").focus();
+  }, function () {
+    fail("This link doesn’t work", "Scan the QR code the officer is showing.");
+  });
+
+  $("f").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("name").value.trim(), email = $("email").value.trim();
+    if (!name) { $("err").textContent = "Type your name."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $("err").textContent = "That email doesn’t look right."; return; }
+    $("err").textContent = "";
+    $("go").disabled = true;
+    rpc("web_check_in", { p_ticket: ticket, p_full_name: name, p_email: email, p_browser: browser }).then(function (r) {
+      if (r.status === "checked_in" || r.status === "already_checked_in") {
+        store("cc_name", name);
+        store("cc_email", email);
+        $("doneTitle").textContent = r.status === "checked_in" ? "You’re checked in" : "You’re already checked in";
+        $("doneBody").textContent = r.club_name + " · " + r.meeting_title + (r.here_count > 1 ? ". " + r.here_count + " people are here." : ".");
+        show("done");
+      } else if (r.status === "expired") {
+        fail("That took a while", "Scan the code again to check in.");
+      } else {
+        fail.apply(null, MESSAGES[r.status] || MESSAGES.expired);
+      }
+    }, function (err) {
+      $("go").disabled = false;
+      var m = String(err.message || "");
+      $("err").textContent = m.indexOf("invalid_email") >= 0 ? "That email doesn’t look right."
+        : m.indexOf("name_required") >= 0 ? "Type your name."
+        : "Couldn’t reach ClubCheck. Check your connection and try again.";
+    });
+  });
+</script>
+</body>
+</html>
