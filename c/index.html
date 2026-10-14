@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClubCheck</title>
+<style>
+  body { margin: 0; background: #F6F5F3; color: #17161B; font: 17px/1.5 -apple-system, system-ui, sans-serif; }
+  main { max-width: 420px; margin: 0 auto; padding: 72px 24px; text-align: center; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 12px; }
+  p { color: #6A6870; margin: 0 0 28px; }
+  a.button { display: block; padding: 16px; border-radius: 16px; background: #861F2C; color: #fff; font-weight: 600; text-decoration: none; margin-bottom: 12px; }
+  a.secondary { background: #fff; color: #17161B; border: 1px solid #E3E0DC; }
+</style>
+</head>
+<body>
+<main>
+  <h1>You’re invited to a club on ClubCheck</h1>
+  <p>Open it in the ClubCheck app. Don’t have it yet? Get it, sign in, then tap this link again.</p>
+  <a class="button" id="open" href="clubcheck://">Open in ClubCheck</a>
+  <a class="button secondary" href="https://apps.apple.com/app/id6822557169">Get ClubCheck</a>
+</main>
+<script>
+  var v = new URLSearchParams(location.search).get("id") || "";
+  var deep = "clubcheck://club/" + encodeURIComponent(v) + "?join=1";
+  document.getElementById("open").href = deep;
+  if (v) location.href = deep;
+</script>
+</body>
+</html>
