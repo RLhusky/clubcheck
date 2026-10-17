@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Unsubscribe · ClubCheck</title>
+<style>
+  :root { --ground: #F6F5F3; --ink: #17161B; --muted: #6A6870; --maroon: #861F2C; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ground: #121114; --ink: #F4F2F0; --muted: #A29FA6; --maroon: #E06B79; } }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.5 -apple-system, system-ui, sans-serif; }
+  main { max-width: 420px; margin: 0 auto; padding: 72px 20px; text-align: center; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  p { color: var(--muted); margin: 0 0 20px; }
+  a { color: var(--maroon); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="t">Unsubscribing…</h1>
+  <p id="b"></p>
+  <a href="../">Browse clubs</a>
+</main>
+<script>
+  var token = new URLSearchParams(location.search).get("t");
+  function done(title, body) { document.getElementById("t").textContent = title; document.getElementById("b").textContent = body; }
+  if (!/^[0-9a-f-]{36}$/i.test(token || "")) done("This link doesn’t work", "Use the unsubscribe link from the email.");
+  else fetch("https://svggedqmvvupxczzvaum.supabase.co/rest/v1/rpc/cancel_application_alert", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: "sb_publishable_RNjFByH2FhVmPs4HN9zvDw_s_pVAidA", Authorization: "Bearer sb_publishable_RNjFByH2FhVmPs4HN9zvDw_s_pVAidA" },
+    body: JSON.stringify({ p_token: token })
+  }).then(function (r) { return r.json(); }).then(function (r) {
+    done("You’re unsubscribed", r && r.club_name ? "You won’t get application emails about " + r.club_name + "." : "You won’t get any more emails from this alert.");
+  }, function () { done("Couldn’t reach ClubCheck", "Check your connection and open the link again."); });
+</script>
+</body>
+</html>

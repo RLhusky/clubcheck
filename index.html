@@ -80,6 +80,7 @@
   .dl h3 { font-size: 15px; font-weight: 600; font-family: Geist, system-ui, sans-serif; letter-spacing: 0; }
   .dl p { margin: 1px 0 0; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dl .go { flex: none; font-size: 14px; font-weight: 600; color: var(--maroon); }
+  .dl .go.quiet { color: var(--muted); font-weight: 500; }
   .dl.rolling .when span { color: var(--green); }
   .dl.closed .when span { color: var(--faint); font-weight: 500; }
   .dl.closed .when b, .dl.closed h3 { color: var(--muted); }
@@ -194,6 +195,15 @@
   .meeting h3 { font-size: 16px; font-weight: 700; }
   .meeting p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
   .meeting .linkish { font-size: 14px; }
+  .notify { display: block; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .notify b { display: block; font-size: 15px; }
+  .notify span { display: block; color: var(--maroon); font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .notify .row { display: flex; gap: 8px; margin-top: 10px; }
+  .notify .row .field { margin: 0; flex: 1; min-width: 0; }
+  .notify .row .btn { flex: none; padding: 10px 14px; }
+  .notify .err { margin: 6px 0 0; min-height: 0; }
+  .notify small { display: block; color: var(--faint); font-size: 12px; margin-top: 6px; }
+  .notify.done { color: var(--green); font-weight: 600; font-size: 15px; }
   .claim { background: var(--ground); border: 1px solid var(--line); }
   .claim p { color: var(--muted); font-size: 15px; margin: 0 0 12px; }
   label { display: block; font-size: 13px; font-weight: 600; margin: 0 0 5px; color: var(--body); }
@@ -366,7 +376,7 @@ function loading() { return '<div class="grid" style="margin-top:28px">' + "<div
 function failed() { return '<div class="empty" style="margin-top:28px"><h3>Couldn’t load clubs</h3><p>Check your connection and refresh the page.</p></div>'; }
 
 // Explore
-var filters = { q: "", cat: "", selective: false, recruiting: false, sort: "popular", shown: 30 };
+var filters = { q: "", cat: "", selective: true, recruiting: false, sort: "popular", shown: 30 };
 function viewExplore() {
   var v = $("view");
   v.innerHTML =
@@ -416,7 +426,7 @@ function drawDue() {
     return '<a class="dl ' + state + '" href="#/club/' + esc(c.slug) + '"><div class="when">' +
       (d ? "<b>" + d.toLocaleDateString([], { month: "short", day: "numeric" }) + "</b><span>" + esc(when) + "</span>" : "<b>Open</b><span>" + esc(when) + "</span>") +
       "</div>" + logo(c) + '<div class="what"><h3>' + esc(c.name) + "</h3>" + (c.apply_note ? "<p>" + esc(c.apply_note) + "</p>" : "") + "</div>" +
-      (state !== "closed" && c.apply_url ? '<span class="go">Apply</span>' : "") + "</a>";
+      (state !== "closed" && c.apply_url ? '<span class="go">Apply</span>' : state === "closed" ? '<span class="go quiet">Notify me</span>' : "") + "</a>";
   }
   var html = "";
   if (due.length || rolling.length) {
@@ -456,7 +466,10 @@ function drawList() {
   });
   if (filters.sort === "az") list.sort(function (a, b) { return a.name.localeCompare(b.name); });
   if (filters.sort === "deadline") list.sort(function (a, b) { return (open(a) ? new Date(a.apply_deadline) : 9e15) - (open(b) ? new Date(b.apply_deadline) : 9e15); });
-  $("count").textContent = list.length === clubs.length ? "All " + list.length + " clubs" : list.length + (list.length === 1 ? " club" : " clubs");
+  var onlySel = filters.selective && !filters.q && !filters.cat && !filters.recruiting;
+  $("count").innerHTML = onlySel ? list.length + ' clubs you apply to · <button class="linkish" id="showAll">Show all ' + clubs.length + "</button>"
+    : list.length === clubs.length ? "All " + list.length + " clubs" : list.length + (list.length === 1 ? " club" : " clubs");
+  if ($("showAll")) $("showAll").onclick = function () { filters.selective = false; filters.shown = 30; drawChips(); drawList(); };
   if (!list.length) {
     $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>No clubs match</h3><p>' +
       (filters.recruiting || filters.selective ? "Application details are still being added. Try turning off a filter." : "Try a different word, or clear the filters.") + "</p></div>";
@@ -482,6 +495,8 @@ function viewClub(slug) {
       prose.insertAdjacentHTML("afterend", '<button class="linkish" id="readMore" style="margin-top:8px">Read more</button>');
       $("readMore").onclick = function () { prose.classList.remove("clamped"); this.remove(); };
     }
+    var n = $("notifyForm");
+    if (n) n.addEventListener("submit", function (e) { e.preventDefault(); notify(c); });
     var f = $("claimForm");
     if (f) f.addEventListener("submit", function (e) { e.preventDefault(); claim(c); });
     v.querySelectorAll("[data-ics]").forEach(function (b) {
@@ -506,10 +521,12 @@ function clubBody(c) {
     right += '<div class="panel apply-box"><h2>Applications</h2>' +
       (closedApp(c) ? '<div class="countdown" style="color:var(--muted)">Closed<small>This round closed ' + esc(fmtDate(c.apply_deadline)) + "</small></div>"
         : c.apply_deadline ? '<div class="countdown">' + esc(untilText(c.apply_deadline)) + "<small>Due " + esc(fmtDate(c.apply_deadline)) + " at " + esc(fmtTime(c.apply_deadline)) + "</small></div>"
-        : c.apply_url ? "" : "<p class='prose'>This club takes applications. Dates aren’t posted yet. Save it and check back.</p>") +
-      (c.apply_note ? '<p class="prose" style="margin:12px 0 0">' + esc(c.apply_note) + "</p>" : "") +
+        : c.apply_url || c.apply_note ? "" : "<p class='prose'>This club takes applications. Dates aren’t posted yet.</p>") +
+      (c.apply_note ? '<p class="prose" style="margin:' + (c.apply_deadline ? "12px" : "0") + ' 0 0">' + esc(c.apply_note) + "</p>" : "") +
       (c.apply_url && !closedApp(c) ? '<a class="btn primary" style="margin-top:14px;width:100%" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Open the application</a>' : "") + "</div>";
   }
+  // Not open right now (and not a join-anytime link): offer an email when it opens.
+  if (!open(c) && !(c.apply_url && !c.apply_deadline) && (c.selective || c.apply_note || c.apply_deadline)) right = right.replace(/<\/div>$/, "") + notifyBox(c) + (right ? "</div>" : "");
   left += '<div class="panel"><h2>About</h2><div class="prose">' + esc(c.description || c.summary || "This club hasn’t added a description yet.") + "</div></div>";
   var meets = c.upcoming || [];
   right += '<div class="panel"><h2>Upcoming meetings</h2>' + (meets.length ? meets.map(function (m, i) {
@@ -518,13 +535,34 @@ function clubBody(c) {
       esc(fmtDate(m.starts_at)) + " · " + esc(fmtTime(m.starts_at)) + (m.location ? " · " + esc(m.location) : "") + '</p><button class="linkish" data-ics="' + i + '">Add to calendar</button></div></div>';
   }).join("") : '<p class="prose" style="color:var(--muted)">' + (c.on_clubcheck ? "Nothing open to everyone on the calendar right now." : "This club doesn’t post its meetings on ClubCheck yet.") + "</p>") + "</div>";
   if (!c.on_clubcheck) {
-    right += '<div class="panel claim"><h2>Run this club?</h2><p>Claim this page to post your application deadline, add photos and meetings, and take attendance with the ClubCheck app. Free.</p>' +
+    right += '<div class="panel claim"><h2>Run this club?</h2><p>' + (c.waiting ? "<b>" + c.waiting + (c.waiting === 1 ? " student wants" : " students want") + " to know when you open applications.</b> " : "") + 'Claim this page to post your application deadline, add photos and meetings, and take attendance with the ClubCheck app. Free.</p>' +
       '<form id="claimForm" novalidate><label for="cn">Your name</label><input class="field" id="cn" autocomplete="name" maxlength="100">' +
       '<label for="ce">UChicago email</label><input class="field" id="ce" type="email" autocomplete="email" placeholder="you@uchicago.edu" maxlength="200">' +
       '<label for="cr">Your role</label><input class="field" id="cr" placeholder="President, recruiting chair…" maxlength="100">' +
       '<div class="err" id="claimErr"></div><button class="btn primary" style="width:100%" id="claimGo">Claim this club</button></form></div>';
   }
   return '<div class="cols"><div>' + left + "</div><div>" + right + "</div></div>";
+}
+function notifyBox(c) {
+  if (load("cc_alerts", {})[c.slug]) return '<div class="notify done">You’ll get an email when ' + esc(c.name) + " opens applications.</div>";
+  return '<form class="notify" id="notifyForm" novalidate><b>Email me when applications open</b>' +
+    (c.waiting > 1 ? "<span>" + c.waiting + " people are waiting</span>" : "") +
+    '<div class="row"><input class="field" id="ne" type="email" autocomplete="email" placeholder="you@uchicago.edu" maxlength="200" value="' + esc(load("cc_email", "")) + '">' +
+    '<button class="btn primary" id="neGo">Notify me</button></div><div class="err" id="neErr"></div>' +
+    '<small>One email when they open. Unsubscribe anytime.</small></form>';
+}
+function notify(c) {
+  var email = $("ne").value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ($("neErr").textContent = "That email doesn’t look right.");
+  $("neErr").textContent = ""; $("neGo").disabled = true;
+  rpc("request_application_alert", { p_slug: c.slug, p_email: email }).then(function () {
+    var a = load("cc_alerts", {}); a[c.slug] = 1; store("cc_alerts", a); store("cc_email", email);
+    if (!saved[c.slug]) { saved[c.slug] = { status: "interested", at: Date.now() }; store("cc_saved", saved); showCount(); }
+    $("notifyForm").outerHTML = '<div class="notify done">Done. We’ll email ' + esc(email) + " when " + esc(c.name) + " opens applications. Saved to My clubs too.</div>";
+  }, function (err) {
+    $("neGo").disabled = false;
+    $("neErr").textContent = /too_many/.test(err.message) ? "That’s a lot of clubs for one day. Try again tomorrow." : "Couldn’t save that. Check your connection and try again.";
+  });
 }
 function claim(c) {
   var name = $("cn").value.trim(), email = $("ce").value.trim(), role = $("cr").value.trim();
