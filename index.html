@@ -50,7 +50,6 @@
   nav.tabs a { text-decoration: none; padding: 8px 12px; border-radius: 999px; color: var(--muted); font-weight: 500; font-size: 15px; white-space: nowrap; }
   nav.tabs a.on { color: var(--ink); background: var(--card); box-shadow: var(--shadow); }
   nav.tabs .count { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 10px; background: var(--maroon); color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
-  .get-app { text-decoration: none; background: var(--ink); color: var(--ground); padding: 8px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; white-space: nowrap; }
   @media (max-width: 720px) {
     /* A backdrop filter would pin the fixed tab bar to the header instead of the screen. */
     header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--ground); }
@@ -58,19 +57,34 @@
     nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; justify-content: space-around; background: var(--card); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); margin: 0; z-index: 10; }
     nav.tabs a { font-size: 13px; padding: 8px 10px; }
     nav.tabs a.on { box-shadow: none; background: var(--maroon-soft); color: var(--maroon); }
-    .get-app { margin-left: auto; }
-    main { padding-bottom: 84px; }
+      main { padding-bottom: 84px; }
   }
 
-  /* Hero */
-  .hero { padding: 44px 0 8px; }
   .eyebrow { color: var(--maroon); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 10px; }
-  .hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.02; font-weight: 800; max-width: 760px; }
-  .hero h1 em { font-style: normal; color: var(--maroon); }
-  .hero p { color: var(--muted); font-size: 18px; max-width: 600px; margin: 14px 0 0; }
-  .stats { display: flex; gap: 28px; margin: 22px 0 0; flex-wrap: wrap; }
-  .stats div { font-size: 14px; color: var(--muted); }
-  .stats b { display: block; font: 700 26px/1.1 "Bricolage Grotesque", sans-serif; color: var(--ink); letter-spacing: -.02em; }
+
+  .intro { padding: 30px 0 0; }
+  .intro h1 { font-size: 30px; font-weight: 700; }
+  .intro p { color: var(--muted); margin: 4px 0 0; }
+  .hint { color: var(--faint); font-size: 13px; }
+  .deadlines { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 6px 8px 10px; }
+  .deadlines .group { margin: 12px 10px 4px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .deadlines .group span { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--faint); margin-left: 4px; }
+  .dl { display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 12px; text-decoration: none; }
+  .dl:hover { background: var(--ground); }
+  .dl .when { flex: none; width: 92px; }
+  .dl .when b { display: block; font-size: 15px; }
+  .dl .when span { display: block; font-size: 13px; color: var(--maroon); font-weight: 600; }
+  .dl .logo { width: 40px; height: 40px; border-radius: 10px; }
+  .dl .logo.mono { font-size: 15px; }
+  .dl .what { flex: 1; min-width: 0; }
+  .dl h3 { font-size: 15px; font-weight: 600; font-family: Geist, system-ui, sans-serif; letter-spacing: 0; }
+  .dl p { margin: 1px 0 0; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dl .go { flex: none; font-size: 14px; font-weight: 600; color: var(--maroon); }
+  .dl.rolling .when span { color: var(--green); }
+  .dl.closed .when span { color: var(--faint); font-weight: 500; }
+  .dl.closed .when b, .dl.closed h3 { color: var(--muted); }
+  .dl.closed .logo { opacity: .7; }
+  @media (max-width: 720px) { .dl { gap: 10px; padding: 10px 6px; } .dl .when { width: 64px; } .dl .when b { font-size: 14px; } .dl .when span { font-size: 12px; } .dl .go { display: none; } }
 
   /* Sections */
   section.block { margin: 36px 0; }
@@ -198,16 +212,7 @@
   .track .x:hover { background: var(--ground); }
   .progress { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 18px; }
 
-  /* App promo + footer */
-  .promo { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: center; background: var(--night, #121114); color: #F4F2F0; border-radius: 24px; padding: 32px; margin: 48px 0 24px; }
-  .promo h2 { font-size: clamp(24px, 4vw, 34px); line-height: 1.08; font-weight: 800; }
-  .promo p { color: #B9B6BD; margin: 12px 0 18px; }
-  .promo ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-  .promo li { display: flex; gap: 12px; align-items: flex-start; color: #D6D3D0; font-size: 15px; }
-  .promo li b { color: #fff; display: block; }
-  .promo .dot { flex: none; width: 28px; height: 28px; border-radius: 9px; background: #2A1418; color: #F29AA4; display: grid; place-items: center; font-weight: 700; }
-  .promo .btn.primary { background: #fff; color: #17161B; border-color: #fff; }
-  @media (max-width: 720px) { .promo { grid-template-columns: 1fr; padding: 24px; } }
+  /* Footer */
   footer { color: var(--muted); font-size: 14px; padding: 8px 0 40px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
   footer a { color: var(--muted); }
   .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--ground); padding: 10px 16px; border-radius: 12px; font-weight: 500; font-size: 14px; z-index: 20; opacity: 0; transition: opacity .2s; pointer-events: none; }
@@ -225,28 +230,14 @@
       <a href="#/week" data-tab="week">This week</a>
       <a href="#/mine" data-tab="mine">My clubs<span class="count hidden" id="savedCount"></span></a>
     </nav>
-    <a class="get-app" href="#app">Get the app</a>
   </div>
 </header>
 
 <main class="wrap" id="view"></main>
 
 <div class="wrap">
-  <section class="promo" id="app">
-    <div>
-      <p class="eyebrow" style="color:#F29AA4">The ClubCheck app</p>
-      <h2>Walk into the meeting. You’re checked in.</h2>
-      <p>Follow your clubs, get a reminder before each meeting, and get checked in automatically over Bluetooth, even with your phone in your pocket.</p>
-      <a class="btn primary" id="appLink" href="https://apps.apple.com/app/id6822557169">Coming soon to the App Store</a>
-    </div>
-    <ul>
-      <li><span class="dot">1</span><span><b>For members</b>Reminders with the room and directions. No more sign-in sheets.</span></li>
-      <li><span class="dot">2</span><span><b>For officers</b>Tap Start now. See a live headcount and a summary after every meeting.</span></li>
-      <li><span class="dot">3</span><span><b>Free</b>For every student and every club.</span></li>
-    </ul>
-  </section>
   <footer>
-    <span>Built at UChicago. Club details come from each club and the university’s public directory.</span>
+    <span>Club details come from each club’s own pages and the university’s public directory. Officers: ClubCheck also takes attendance for you (iPhone app coming soon).</span>
     <a href="support.html">Support</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a>
   </footer>
 </div>
@@ -255,8 +246,6 @@
 <script>
 var API = "https://svggedqmvvupxczzvaum.supabase.co/rest/v1/rpc/";
 var KEY = "sb_publishable_RNjFByH2FhVmPs4HN9zvDw_s_pVAidA";
-// Flip once Apple approves the app.
-var APP_LIVE = false;
 
 var CATS = {
   preprofessional: "Pre-professional", academic: "Academic", cultural: "Cultural", arts: "Arts & music",
@@ -295,8 +284,6 @@ function load(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.par
 function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove("show"); }, 2200); }
 
-if (APP_LIVE) $("appLink").textContent = "Download on the App Store";
-else $("appLink").removeAttribute("href");
 
 // Saved clubs live in this browser: slug → { status, at }.
 var saved = load("cc_saved", {});
@@ -344,7 +331,8 @@ function logo(c, cls) {
     ? '<img class="logo ' + (cls || "") + '" src="' + esc(c.logo_url.replace("https://rlhusky.github.io/clubcheck/", "")) + '" alt="" loading="lazy">'
     : '<span class="logo mono ' + (cls || "") + '">' + esc(initials(c.name)) + "</span>";
 }
-function open(c) { return c.apply_deadline && new Date(c.apply_deadline) > Date.now() - DAY; }
+function closedApp(c) { return c.apply_deadline && new Date(c.apply_deadline) <= Date.now(); }
+function open(c) { return c.apply_deadline && new Date(c.apply_deadline) > Date.now(); }
 function tags(c) {
   var t = [];
   if (open(c)) t.push('<span class="tag due">' + esc(untilText(c.apply_deadline)) + "</span>");
@@ -382,12 +370,9 @@ var filters = { q: "", cat: "", selective: false, recruiting: false, sort: "popu
 function viewExplore() {
   var v = $("view");
   v.innerHTML =
-    '<div class="hero"><p class="eyebrow">Every UChicago club, in one place</p>' +
-    "<h1>Find your clubs. <em>Never miss a deadline.</em></h1>" +
-    "<p>Application deadlines, open meetings this week, and a tracker for everything you’re applying to. No sign-up needed.</p>" +
-    '<div class="stats" id="stats"></div></div>' +
-    '<section class="block hidden" id="bestBlock"><div class="head"><h2>Standout clubs</h2></div><p class="sub" id="bestNote"></p><div class="chips" id="bestTabs"></div><div class="rail" id="bestRail" style="margin-top:10px"></div></section>' +
-    '<section class="block hidden" id="dueBlock"><div class="head"><h2>Applications closing soon</h2><button class="linkish" id="seeDue">See all</button></div><div class="rail" id="dueRail"></div></section>' +
+    '<div class="intro"><h1>UChicago clubs</h1><p id="introLine">Every club, its application deadline, and what’s on this week.</p></div>' +
+    '<section class="block hidden" id="dueBlock"><div class="head"><h2>Application deadlines</h2><span class="hint">From each club’s own site · Chicago time</span></div><div class="deadlines" id="dueList"></div></section>' +
+    '<section class="block hidden" id="bestBlock"><div class="head"><h2>Standouts</h2><span class="hint" id="bestNote"></span></div><div class="chips" id="bestTabs"></div><div class="rail" id="bestRail" style="margin-top:10px"></div></section>' +
     '<section class="block"><div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
     '<input id="q" type="search" placeholder="Search 440+ clubs: consulting, a cappella, Korean…" autocomplete="off" value="' + esc(filters.q) + '"></div>' +
     '<div class="chips" id="chips"></div>' +
@@ -396,12 +381,10 @@ function viewExplore() {
   $("sort").value = filters.sort;
   $("q").addEventListener("input", function (e) { filters.q = e.target.value; filters.shown = 30; drawList(); });
   $("sort").addEventListener("change", function (e) { filters.sort = e.target.value; drawList(); });
-  ready.then(function () { drawStats(); drawBest(); drawDue(); drawChips(); drawList(); }, function () { $("grid").outerHTML = failed(); });
+  ready.then(function () { drawIntro(); drawDue(); drawBest(); drawChips(); drawList(); }, function () { $("grid").outerHTML = failed(); });
 }
-function drawStats() {
-  var due = clubs.filter(open).length, live = clubs.filter(function (c) { return c.on_clubcheck; }).length;
-  $("stats").innerHTML = "<div><b>" + clubs.length + "</b>clubs</div>" + (due ? "<div><b>" + due + "</b>taking applications</div>" : "") +
-    "<div><b>" + Object.keys(CATS).length + "</b>categories</div>" + (live ? "<div><b>" + live + "</b>on ClubCheck</div>" : "");
+function drawIntro() {
+  $("introLine").textContent = "All " + clubs.length + " clubs, their application deadlines, and what’s on this week.";
 }
 var bestTab = 0;
 function drawBest() {
@@ -409,7 +392,7 @@ function drawBest() {
   $("bestTabs").innerHTML = COLLECTIONS.map(function (k, i) { return '<button class="chip' + (i === bestTab ? " on" : "") + '" data-i="' + i + '">' + esc(k.title) + "</button>"; }).join("");
   $("bestTabs").onclick = function (e) { var b = e.target.closest("button"); if (!b) return; bestTab = +b.getAttribute("data-i"); drawBest(); };
   var k = COLLECTIONS[bestTab];
-  $("bestNote").textContent = k.note + ".";
+  $("bestNote").textContent = k.note;
   $("bestRail").innerHTML = k.slugs.map(function (s) { return bySlug[s]; }).filter(Boolean).map(function (c) {
     return '<a class="due-card best" href="#/club/' + esc(c.slug) + '"><div class="top">' + logo(c) + "<h3>" + esc(c.name) + "</h3></div>" +
       (c.summary ? "<p>" + esc(c.summary) + "</p>" : "") + '<div class="tags" style="margin-top:auto">' + tags(c) + "</div>" +
@@ -417,15 +400,37 @@ function drawBest() {
   }).join("");
   $("bestRail").scrollLeft = 0;
 }
+// Open now (soonest first), then rolling applications, then ones that closed in the last month.
+var showAllClosed = false;
 function drawDue() {
-  var due = clubs.filter(open).sort(function (a, b) { return new Date(a.apply_deadline) - new Date(b.apply_deadline); });
-  if (!due.length) return;
+  var now = Date.now();
+  var due = clubs.filter(function (c) { return c.apply_deadline && new Date(c.apply_deadline) > now; })
+    .sort(function (a, b) { return new Date(a.apply_deadline) - new Date(b.apply_deadline); });
+  var rolling = clubs.filter(function (c) { return !c.apply_deadline && c.apply_url && c.selective; });
+  var closed = clubs.filter(function (c) { return c.apply_deadline && new Date(c.apply_deadline) <= now && new Date(c.apply_deadline) > now - 45 * DAY; })
+    .sort(function (a, b) { return new Date(b.apply_deadline) - new Date(a.apply_deadline); });
+  if (!due.length && !rolling.length && !closed.length) return;
   $("dueBlock").classList.remove("hidden");
-  $("dueRail").innerHTML = due.slice(0, 12).map(function (c) {
-    return '<a class="due-card" href="#/club/' + esc(c.slug) + '"><div class="top">' + logo(c) + "<h3>" + esc(c.name) + "</h3></div>" +
-      '<div class="countdown">' + esc(untilText(c.apply_deadline)) + "<small>Applications due " + esc(fmtDate(c.apply_deadline)) + "</small></div></a>";
-  }).join("");
-  $("seeDue").onclick = function () { filters.recruiting = true; filters.sort = "deadline"; $("sort").value = "deadline"; drawChips(); drawList(); $("q").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  function row(c, when, state) {
+    var d = c.apply_deadline && new Date(c.apply_deadline);
+    return '<a class="dl ' + state + '" href="#/club/' + esc(c.slug) + '"><div class="when">' +
+      (d ? "<b>" + d.toLocaleDateString([], { month: "short", day: "numeric" }) + "</b><span>" + esc(when) + "</span>" : "<b>Open</b><span>" + esc(when) + "</span>") +
+      "</div>" + logo(c) + '<div class="what"><h3>' + esc(c.name) + "</h3>" + (c.apply_note ? "<p>" + esc(c.apply_note) + "</p>" : "") + "</div>" +
+      (state !== "closed" && c.apply_url ? '<span class="go">Apply</span>' : "") + "</a>";
+  }
+  var html = "";
+  if (due.length || rolling.length) {
+    html += '<p class="group">Open now</p>' +
+      due.map(function (c) { return row(c, untilText(c.apply_deadline), "open"); }).join("") +
+      rolling.map(function (c) { return row(c, "No deadline", "rolling"); }).join("");
+  }
+  if (closed.length) {
+    html += '<p class="group">Closed recently <span>for next time</span></p>' +
+      (showAllClosed ? closed : closed.slice(0, 4)).map(function (c) { return row(c, "Closed", "closed"); }).join("") +
+      (closed.length > 4 && !showAllClosed ? '<button class="linkish" id="moreClosed" style="margin:6px 0 0 4px">Show ' + (closed.length - 4) + " more</button>" : "");
+  }
+  $("dueList").innerHTML = html;
+  if ($("moreClosed")) $("moreClosed").onclick = function () { showAllClosed = true; drawDue(); };
 }
 function drawChips() {
   var html = '<button class="chip flag' + (filters.recruiting ? " on" : "") + '" data-flag="recruiting">Taking applications</button>' +
@@ -447,7 +452,7 @@ function matches(c, q) {
 }
 function drawList() {
   var list = clubs.filter(function (c) {
-    return matches(c, filters.q) && (!filters.cat || c.category === filters.cat) && (!filters.selective || c.selective) && (!filters.recruiting || open(c));
+    return matches(c, filters.q) && (!filters.cat || c.category === filters.cat) && (!filters.selective || c.selective) && (!filters.recruiting || open(c) || (!c.apply_deadline && c.apply_url && c.selective));
   });
   if (filters.sort === "az") list.sort(function (a, b) { return a.name.localeCompare(b.name); });
   if (filters.sort === "deadline") list.sort(function (a, b) { return (open(a) ? new Date(a.apply_deadline) : 9e15) - (open(b) ? new Date(b.apply_deadline) : 9e15); });
@@ -490,18 +495,20 @@ function clubTop(c) {
     (c.followers ? '<div class="meta">' + c.followers + (c.followers === 1 ? " follower" : " followers") + "</div>" : "") +
     '<div class="tags">' + tags(c) + "</div></div></div>" +
     '<div class="actions"><button class="btn' + (on ? " saved" : "") + '" data-save="' + esc(c.slug) + '">' + heart(on) + (on ? " Saved" : " Save") + "</button>" +
-    (c.apply_url ? '<a class="btn primary" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Apply</a>' : "") +
+    (c.apply_url && !closedApp(c) ? '<a class="btn primary" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Apply</a>' : "") +
     (c.website ? '<a class="btn" href="' + esc(c.website) + '" target="_blank" rel="noopener">Website</a>' : "") +
     (c.instagram ? '<a class="btn" href="https://instagram.com/' + esc(c.instagram) + '" target="_blank" rel="noopener">Instagram</a>' : "") +
     "</div>";
 }
 function clubBody(c) {
   var left = "", right = "";
-  if (c.apply_deadline || c.apply_url || c.selective) {
+  if (c.apply_deadline || c.apply_url || c.apply_note || c.selective) {
     right += '<div class="panel apply-box"><h2>Applications</h2>' +
-      (c.apply_deadline ? '<div class="countdown">' + esc(untilText(c.apply_deadline)) + "<small>Due " + esc(fmtDate(c.apply_deadline)) + " at " + esc(fmtTime(c.apply_deadline)) + "</small></div>" : "<p class='prose'>This club takes applications. Dates haven’t been posted yet. Save it and check back.</p>") +
+      (closedApp(c) ? '<div class="countdown" style="color:var(--muted)">Closed<small>This round closed ' + esc(fmtDate(c.apply_deadline)) + "</small></div>"
+        : c.apply_deadline ? '<div class="countdown">' + esc(untilText(c.apply_deadline)) + "<small>Due " + esc(fmtDate(c.apply_deadline)) + " at " + esc(fmtTime(c.apply_deadline)) + "</small></div>"
+        : c.apply_url ? "" : "<p class='prose'>This club takes applications. Dates aren’t posted yet. Save it and check back.</p>") +
       (c.apply_note ? '<p class="prose" style="margin:12px 0 0">' + esc(c.apply_note) + "</p>" : "") +
-      (c.apply_url ? '<a class="btn primary" style="margin-top:14px;width:100%" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Open the application</a>' : "") + "</div>";
+      (c.apply_url && !closedApp(c) ? '<a class="btn primary" style="margin-top:14px;width:100%" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Open the application</a>' : "") + "</div>";
   }
   left += '<div class="panel"><h2>About</h2><div class="prose">' + esc(c.description || c.summary || "This club hasn’t added a description yet.") + "</div></div>";
   var meets = c.upcoming || [];
@@ -547,7 +554,7 @@ var weekState = { start: startOfDay(new Date()), day: startOfDay(new Date()), mi
 (function () { var s = weekState.start; s.setDate(s.getDate() - ((s.getDay() + 6) % 7)); })();
 function viewWeek() {
   var v = $("view");
-  v.innerHTML = '<div class="hero" style="padding-bottom:0"><p class="eyebrow">Open to everyone</p><h1>This week on campus</h1><p>Club meetings and events anyone can walk into.</p></div>' +
+  v.innerHTML = '<div class="intro"><h1>This week</h1><p>Club meetings open to everyone.</p></div>' +
     '<section class="block"><div class="seg"><button data-m="0">All clubs</button><button data-m="1">My clubs</button></div>' +
     '<div class="week"><button class="arrow" id="prev" aria-label="Previous week">‹</button><div class="days" id="days"></div><button class="arrow" id="next" aria-label="Next week">›</button></div>' +
     '<div class="events" id="events"><div class="skeleton"></div></div></section>';
@@ -606,7 +613,7 @@ function drawEvents(list) {
 // My clubs: saved clubs and where each application stands.
 function viewMine() {
   var v = $("view");
-  v.innerHTML = '<div class="hero" style="padding-bottom:0"><p class="eyebrow">Saved on this browser</p><h1>My clubs</h1><p>Keep track of every club you’re applying to, with deadlines in one place.</p></div><section class="block" id="mine">' + loading() + "</section>";
+  v.innerHTML = '<div class="intro"><h1>My clubs</h1><p>Clubs you saved, and where each application stands.</p></div><section class="block" id="mine">' + loading() + "</section>";
   ready.then(function () {
     var list = Object.keys(saved).map(function (s) { return bySlug[s]; }).filter(Boolean);
     if (!list.length) {
@@ -642,7 +649,6 @@ function route() {
 }
 function render() {
   var r = route();
-  if (location.hash === "#app") { if (!$("view").innerHTML) viewExplore(); return; }
   document.title = "ClubCheck · Every UChicago club";
   document.querySelectorAll("#tabs a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("data-tab") === (r.name === "club" ? "explore" : r.name)); });
   if (r.name === "club") viewClub(r.slug);
