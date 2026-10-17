@@ -162,6 +162,46 @@
   .event h3 { font-size: 16px; font-weight: 700; }
   .event p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
 
+  .feedbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .day.today:not(.on) b { color: var(--maroon); }
+  .dayhead { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 10px; }
+  .dayhead h2 { font-size: 20px; font-weight: 700; }
+  .items { display: grid; gap: 8px; }
+  .item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+  .item .time { flex: none; width: 84px; }
+  .item .time b { display: block; font-size: 15px; }
+  .item .time span { display: block; font-size: 13px; color: var(--maroon); font-weight: 600; }
+  .item .time span.ok { color: var(--green); }
+  .item .logo { width: 42px; height: 42px; border-radius: 11px; }
+  .item .logo.mono { font-size: 15px; }
+  .item .what { flex: 1; min-width: 0; }
+  .item .kind { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+  .item.due .kind { color: var(--maroon); }
+  .item h3 { font: 600 16px/1.3 Geist, system-ui, sans-serif; letter-spacing: 0; }
+  .item p { margin: 1px 0 0; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item h3 a { text-decoration: none; }
+  .item .go { flex: none; padding: 9px 14px; font-size: 14px; border-radius: 12px; }
+  .items > * { min-width: 0; }
+  .fold summary { list-style: none; cursor: pointer; }
+  .fold summary::-webkit-details-marker { display: none; }
+  .fold summary .go::after { content: " ▾"; }
+  .fold[open] summary .go::after { content: " ▴"; }
+  .fold[open] summary .item { border-radius: 16px 16px 0 0; }
+  .fold .opts { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 16px 16px; background: var(--card); }
+  .fold .opt { display: flex; align-items: center; gap: 12px; padding: 11px 14px 11px 112px; border-top: 1px solid var(--line); }
+  .fold .opt > div { flex: 1; min-width: 0; }
+  .fold .opt h4 { margin: 0; font: 500 15px/1.35 Geist, system-ui, sans-serif; }
+  .fold .opt p { margin: 1px 0 0; font-size: 13px; color: var(--muted); }
+  .fold .opt p a { color: var(--maroon); }
+  .fold .opt .btn { flex: none; padding: 7px 12px; font-size: 13px; border-radius: 10px; }
+  @media (max-width: 720px) {
+    .fold .opt { padding: 11px 12px; }
+    .item { flex-wrap: wrap; gap: 10px 12px; padding: 12px; }
+    .item .time { width: 100%; display: flex; gap: 8px; align-items: baseline; }
+    .item .time b, .item .time span { display: inline; }
+    .item .go { margin-left: 54px; }
+  }
+
   /* Empty states */
   .empty { text-align: center; padding: 34px 20px; background: var(--card); border: 1px dashed var(--line-strong); border-radius: 18px; color: var(--muted); }
   .empty h3 { color: var(--ink); font-size: 18px; margin-bottom: 4px; }
@@ -186,7 +226,15 @@
   .prose { color: var(--body); white-space: pre-line; overflow-wrap: anywhere; }
   .prose.clamped { max-height: 220px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
   .apply-box { border-color: var(--maroon); }
-  .apply-box .countdown { font-size: 30px; }
+  .op { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .op:first-of-type { border-top: 0; padding-top: 0; }
+  .op > div { flex: 1; min-width: 0; }
+  .op h3 { font: 600 16px/1.3 Geist, system-ui, sans-serif; letter-spacing: 0; }
+  .op p { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+  .op p.when { color: var(--maroon); font-weight: 600; }
+  .op.closed h3, .op.closed p.when { color: var(--faint); }
+  .op .btn { flex: none; padding: 9px 14px; font-size: 14px; }
+  .apply-box .note { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
   .meeting { display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
   .meeting:first-of-type { border-top: 0; padding-top: 0; }
   .date { flex: none; width: 50px; text-align: center; background: var(--maroon-soft); color: var(--maroon); border-radius: 12px; padding: 6px 0; }
@@ -236,8 +284,8 @@
   <div class="wrap bar">
     <a class="brand" href="#/"><img src="icon.png" alt=""><span>ClubCheck<small>UChicago</small></span></a>
     <nav class="tabs" id="tabs">
-      <a href="#/" data-tab="explore">Explore</a>
-      <a href="#/week" data-tab="week">This week</a>
+      <a href="#/" data-tab="today">Today</a>
+      <a href="#/clubs" data-tab="explore">Clubs</a>
       <a href="#/mine" data-tab="mine">My clubs<span class="count hidden" id="savedCount"></span></a>
     </nav>
   </div>
@@ -380,8 +428,7 @@ var filters = { q: "", cat: "", selective: true, recruiting: false, sort: "popul
 function viewExplore() {
   var v = $("view");
   v.innerHTML =
-    '<div class="intro"><h1>UChicago clubs</h1><p id="introLine">Every club, its application deadline, and what’s on this week.</p></div>' +
-    '<section class="block hidden" id="dueBlock"><div class="head"><h2>Application deadlines</h2><span class="hint">From each club’s own site · Chicago time</span></div><div class="deadlines" id="dueList"></div></section>' +
+    '<div class="intro"><h1>Clubs</h1><p id="introLine">Every UChicago club.</p></div>' +
     '<section class="block hidden" id="bestBlock"><div class="head"><h2>Standouts</h2><span class="hint" id="bestNote"></span></div><div class="chips" id="bestTabs"></div><div class="rail" id="bestRail" style="margin-top:10px"></div></section>' +
     '<section class="block"><div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
     '<input id="q" type="search" placeholder="Search 440+ clubs: consulting, a cappella, Korean…" autocomplete="off" value="' + esc(filters.q) + '"></div>' +
@@ -391,10 +438,10 @@ function viewExplore() {
   $("sort").value = filters.sort;
   $("q").addEventListener("input", function (e) { filters.q = e.target.value; filters.shown = 30; drawList(); });
   $("sort").addEventListener("change", function (e) { filters.sort = e.target.value; drawList(); });
-  ready.then(function () { drawIntro(); drawDue(); drawBest(); drawChips(); drawList(); }, function () { $("grid").outerHTML = failed(); });
+  ready.then(function () { drawIntro(); drawBest(); drawChips(); drawList(); }, function () { $("grid").outerHTML = failed(); });
 }
 function drawIntro() {
-  $("introLine").textContent = "All " + clubs.length + " clubs, their application deadlines, and what’s on this week.";
+  $("introLine").textContent = "All " + clubs.length + " UChicago clubs. The ones you apply to are shown first.";
 }
 var bestTab = 0;
 function drawBest() {
@@ -409,38 +456,6 @@ function drawBest() {
       '<button class="save' + (isSaved(c.slug) ? " on" : "") + '" data-save="' + esc(c.slug) + '" aria-label="Save">' + heart(isSaved(c.slug)) + "</button></a>";
   }).join("");
   $("bestRail").scrollLeft = 0;
-}
-// Open now (soonest first), then rolling applications, then ones that closed in the last month.
-var showAllClosed = false;
-function drawDue() {
-  var now = Date.now();
-  var due = clubs.filter(function (c) { return c.apply_deadline && new Date(c.apply_deadline) > now; })
-    .sort(function (a, b) { return new Date(a.apply_deadline) - new Date(b.apply_deadline); });
-  var rolling = clubs.filter(function (c) { return !c.apply_deadline && c.apply_url && c.selective; });
-  var closed = clubs.filter(function (c) { return c.apply_deadline && new Date(c.apply_deadline) <= now && new Date(c.apply_deadline) > now - 45 * DAY; })
-    .sort(function (a, b) { return new Date(b.apply_deadline) - new Date(a.apply_deadline); });
-  if (!due.length && !rolling.length && !closed.length) return;
-  $("dueBlock").classList.remove("hidden");
-  function row(c, when, state) {
-    var d = c.apply_deadline && new Date(c.apply_deadline);
-    return '<a class="dl ' + state + '" href="#/club/' + esc(c.slug) + '"><div class="when">' +
-      (d ? "<b>" + d.toLocaleDateString([], { month: "short", day: "numeric" }) + "</b><span>" + esc(when) + "</span>" : "<b>Open</b><span>" + esc(when) + "</span>") +
-      "</div>" + logo(c) + '<div class="what"><h3>' + esc(c.name) + "</h3>" + (c.apply_note ? "<p>" + esc(c.apply_note) + "</p>" : "") + "</div>" +
-      (state !== "closed" && c.apply_url ? '<span class="go">Apply</span>' : state === "closed" ? '<span class="go quiet">Notify me</span>' : "") + "</a>";
-  }
-  var html = "";
-  if (due.length || rolling.length) {
-    html += '<p class="group">Open now</p>' +
-      due.map(function (c) { return row(c, untilText(c.apply_deadline), "open"); }).join("") +
-      rolling.map(function (c) { return row(c, "No deadline", "rolling"); }).join("");
-  }
-  if (closed.length) {
-    html += '<p class="group">Closed recently <span>for next time</span></p>' +
-      (showAllClosed ? closed : closed.slice(0, 4)).map(function (c) { return row(c, "Closed", "closed"); }).join("") +
-      (closed.length > 4 && !showAllClosed ? '<button class="linkish" id="moreClosed" style="margin:6px 0 0 4px">Show ' + (closed.length - 4) + " more</button>" : "");
-  }
-  $("dueList").innerHTML = html;
-  if ($("moreClosed")) $("moreClosed").onclick = function () { showAllClosed = true; drawDue(); };
 }
 function drawChips() {
   var html = '<button class="chip flag' + (filters.recruiting ? " on" : "") + '" data-flag="recruiting">Taking applications</button>' +
@@ -484,11 +499,11 @@ function drawList() {
 function viewClub(slug) {
   var v = $("view");
   var c0 = bySlug[slug];
-  v.innerHTML = '<a class="back" href="#/">← All clubs</a>' + (c0 ? clubTop(c0) : "") + '<div id="clubBody">' + loading() + "</div>";
+  v.innerHTML = '<a class="back" href="#/clubs">← All clubs</a>' + (c0 ? clubTop(c0) : "") + '<div id="clubBody">' + loading() + "</div>";
   rpc("public_club", { p_slug: slug }).then(function (c) {
-    if (!c) { v.innerHTML = '<a class="back" href="#/">← All clubs</a><div class="empty" style="margin-top:24px"><h3>Club not found</h3><p>It may have changed its name. Search for it instead.</p></div>'; return; }
+    if (!c) { v.innerHTML = '<a class="back" href="#/clubs">← All clubs</a><div class="empty" style="margin-top:24px"><h3>Club not found</h3><p>It may have changed its name. Search for it instead.</p></div>'; return; }
     document.title = c.name + " · ClubCheck";
-    v.innerHTML = '<a class="back" href="#/">← All clubs</a>' + clubTop(c) + clubBody(c);
+    v.innerHTML = '<a class="back" href="#/clubs">← All clubs</a>' + clubTop(c) + clubBody(c);
     var prose = v.querySelector(".prose");
     if (prose && prose.scrollHeight > 260) {
       prose.classList.add("clamped");
@@ -517,16 +532,24 @@ function clubTop(c) {
 }
 function clubBody(c) {
   var left = "", right = "";
-  if (c.apply_deadline || c.apply_url || c.apply_note || c.selective) {
+  // Each thing you can apply to, with its own form. Closed ones stay for reference.
+  var ops = c.openings || [];
+  if (ops.length || c.apply_note || c.selective) {
     right += '<div class="panel apply-box"><h2>Applications</h2>' +
-      (closedApp(c) ? '<div class="countdown" style="color:var(--muted)">Closed<small>This round closed ' + esc(fmtDate(c.apply_deadline)) + "</small></div>"
-        : c.apply_deadline ? '<div class="countdown">' + esc(untilText(c.apply_deadline)) + "<small>Due " + esc(fmtDate(c.apply_deadline)) + " at " + esc(fmtTime(c.apply_deadline)) + "</small></div>"
-        : c.apply_url || c.apply_note ? "" : "<p class='prose'>This club takes applications. Dates aren’t posted yet.</p>") +
-      (c.apply_note ? '<p class="prose" style="margin:' + (c.apply_deadline ? "12px" : "0") + ' 0 0">' + esc(c.apply_note) + "</p>" : "") +
-      (c.apply_url && !closedApp(c) ? '<a class="btn primary" style="margin-top:14px;width:100%" href="' + esc(c.apply_url) + '" target="_blank" rel="noopener">Open the application</a>' : "") + "</div>";
+      ops.map(function (o) {
+        var when = o.state === "upcoming" ? "Opens " + fmtDate(o.opens_at)
+          : o.state === "closed" ? "Closed " + fmtDate(o.deadline)
+          : o.deadline ? untilText(o.deadline) + " · due " + fmtDate(o.deadline) + ", " + fmtTime(o.deadline) : "Open · no deadline";
+        var url = o.state === "closed" ? null : o.apply_url || o.source_url;
+        return '<div class="op ' + o.state + '"><div><h3>' + esc(o.title) + "</h3>" + (o.for_whom ? "<p>" + esc(o.for_whom) + "</p>" : "") +
+          '<p class="when">' + esc(when) + "</p>" + (o.how_to_apply && !o.apply_url ? "<p>" + esc(o.how_to_apply) + "</p>" : "") + "</div>" +
+          (url ? '<a class="btn' + (o.apply_url ? " primary" : "") + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (o.apply_url ? "Apply" : "Details") + "</a>" : "") + "</div>";
+      }).join("") +
+      (c.apply_note ? '<p class="prose note">' + esc(c.apply_note) + "</p>" : !ops.length ? "<p class='prose note'>This club takes applications. Dates aren’t posted yet.</p>" : "") +
+      "</div>";
   }
-  // Not open right now (and not a join-anytime link): offer an email when it opens.
-  if (!open(c) && !(c.apply_url && !c.apply_deadline) && (c.selective || c.apply_note || c.apply_deadline)) right = right.replace(/<\/div>$/, "") + notifyBox(c) + (right ? "</div>" : "");
+  // Nothing open right now: offer an email when it opens.
+  if (!c.open_count && (ops.length || c.apply_note || c.selective)) right = right.replace(/<\/div>$/, "") + notifyBox(c) + "</div>";
   left += '<div class="panel"><h2>About</h2><div class="prose">' + esc(c.description || c.summary || "This club hasn’t added a description yet.") + "</div></div>";
   var meets = c.upcoming || [];
   right += '<div class="panel"><h2>Upcoming meetings</h2>' + (meets.length ? meets.map(function (m, i) {
@@ -587,64 +610,123 @@ function downloadIcs(c, m) {
   a.download = c.slug + ".ics"; a.click();
 }
 
-// This week
+// Today: day by day, what's due, what opens, and what's happening. Then every open application.
 var weekState = { start: startOfDay(new Date()), day: startOfDay(new Date()), mine: false };
-(function () { var s = weekState.start; s.setDate(s.getDate() - ((s.getDay() + 6) % 7)); })();
-function viewWeek() {
+function viewToday() {
   var v = $("view");
-  v.innerHTML = '<div class="intro"><h1>This week</h1><p>Club meetings open to everyone.</p></div>' +
-    '<section class="block"><div class="seg"><button data-m="0">All clubs</button><button data-m="1">My clubs</button></div>' +
+  v.innerHTML = '<div class="intro"><h1>UChicago clubs</h1><p>Deadlines, info sessions and meetings, day by day.</p></div>' +
+    '<section class="block"><div class="feedbar"><div class="seg"><button data-m="0">Everything</button><button data-m="1">My clubs</button></div>' +
+    '<span class="hint" id="weekLabel"></span></div>' +
     '<div class="week"><button class="arrow" id="prev" aria-label="Previous week">‹</button><div class="days" id="days"></div><button class="arrow" id="next" aria-label="Next week">›</button></div>' +
-    '<div class="events" id="events"><div class="skeleton"></div></div></section>';
+    '<div id="dayHead" class="dayhead"></div><div class="items" id="events"><div class="skeleton"></div></div></section>' +
+    '<section class="block"><div class="head"><h2>Open applications</h2><span class="hint">Every form, linked directly</span></div><div class="items" id="openList"><div class="skeleton"></div></div></section>';
   v.querySelectorAll(".seg button").forEach(function (b) {
     b.classList.toggle("on", (b.getAttribute("data-m") === "1") === weekState.mine);
-    b.onclick = function () { weekState.mine = b.getAttribute("data-m") === "1"; viewWeek(); };
+    b.onclick = function () { weekState.mine = b.getAttribute("data-m") === "1"; viewToday(); };
   });
   $("prev").onclick = function () { shiftWeek(-7); };
   $("next").onclick = function () { shiftWeek(7); };
   var from = weekState.start, to = new Date(from.getTime() + 7 * DAY);
+  $("weekLabel").textContent = from.toLocaleDateString([], { month: "short", day: "numeric" }) + " – " + new Date(to - DAY).toLocaleDateString([], { month: "short", day: "numeric" });
   var slugs = weekState.mine ? Object.keys(saved) : null;
   if (weekState.mine && !slugs.length) {
     drawDays([]);
-    $("events").innerHTML = '<div class="empty"><h3>Save clubs to see their meetings here</h3><p>Tap the heart on any club. Its open meetings will show up in this tab.</p></div>';
-    return;
+    $("dayHead").innerHTML = "";
+    $("events").innerHTML = '<div class="empty"><h3>Save clubs to see only theirs</h3><p>Tap the heart on any club. Its deadlines and events will show here.</p></div>';
+  } else {
+    rpc("public_feed", { p_from: from.toISOString(), p_to: to.toISOString(), p_slugs: slugs }).then(function (list) {
+      var on = function (d) { return list.some(function (i) { return startOfDay(i.at).getTime() === d.getTime(); }); };
+      if (!weekState.picked && !on(weekState.day)) {
+        var next = list.map(function (i) { return startOfDay(i.at); }).filter(function (d) { return d > weekState.day; })[0];
+        if (next) weekState.day = next;
+      }
+      drawDays(list); drawEvents(list);
+    }, function () { $("events").innerHTML = failed(); });
   }
-  rpc("public_calendar", { p_from: from.toISOString(), p_to: to.toISOString(), p_slugs: slugs }).then(function (list) {
-    drawDays(list); drawEvents(list);
-  }, function () { $("events").innerHTML = failed(); });
+  rpc("open_applications").then(function (list) {
+    if (weekState.mine) list = list.filter(function (o) { return saved[o.club.slug]; });
+    $("openList").innerHTML = list.length ? folded(list, function (o) { return o; }, openingRow) :
+      '<div class="empty"><h3>Nothing open right now</h3><p>Most clubs recruit at the start of fall and winter. Open a club and tap “Email me” to hear when it opens.</p></div>';
+  }, function () { $("openList").innerHTML = failed(); });
 }
 function shiftWeek(n) {
   weekState.start = new Date(weekState.start.getTime() + n * DAY);
   weekState.day = new Date(weekState.start);
   var today = startOfDay(new Date());
   if (today >= weekState.start && today < new Date(weekState.start.getTime() + 7 * DAY)) weekState.day = today;
-  viewWeek();
+  viewToday();
 }
 function drawDays(list) {
-  var html = "";
+  var html = "", today = startOfDay(new Date()).getTime();
   for (var i = 0; i < 7; i++) {
     var d = new Date(weekState.start.getTime() + i * DAY);
-    var has = list.some(function (m) { return startOfDay(m.starts_at).getTime() === d.getTime(); });
-    html += '<button class="day' + (d.getTime() === weekState.day.getTime() ? " on" : "") + (has ? " has" : "") + '" data-d="' + d.getTime() + '"><span>' +
+    var n = list.filter(function (m) { return startOfDay(m.at).getTime() === d.getTime(); }).length;
+    html += '<button class="day' + (d.getTime() === weekState.day.getTime() ? " on" : "") + (n ? " has" : "") + (d.getTime() === today ? " today" : "") + '" data-d="' + d.getTime() + '"><span>' +
       d.toLocaleDateString([], { weekday: "short" }) + "</span><b>" + d.getDate() + "</b></button>";
   }
   $("days").innerHTML = html;
   $("days").onclick = function (e) {
     var b = e.target.closest(".day"); if (!b) return;
-    weekState.day = new Date(+b.getAttribute("data-d")); drawDays(list); drawEvents(list);
+    weekState.day = new Date(+b.getAttribute("data-d")); weekState.picked = true; drawDays(list); drawEvents(list);
   };
 }
+// One row: logo, what it is, when, and the direct link.
+function itemRow(o) {
+  var c = o.club;
+  return '<div class="item ' + (o.cls || "") + '"><div class="time">' + o.when + "</div>" +
+    '<a href="#/club/' + esc(c.slug) + '">' + logo(c) + '</a><div class="what"><span class="kind">' + esc(o.kind) + '</span><h3><a href="#/club/' + esc(c.slug) + '">' + esc(c.name) + "</a></h3>" +
+    "<p>" + esc([o.title, o.sub].filter(function (x) { return x && x !== "Application"; }).join(" · ") || (o.kind === "Due" ? "Application" : "")) + "</p></div>" +
+    (o.url ? '<a class="go btn' + (o.primary ? " primary" : "") + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.cta) + "</a>" : "") + "</div>";
+}
+var KIND = { application: "Application", audition: "Audition", tryout: "Tryout", interest_form: "Interest form" };
+function openingRow(o) {
+  return itemRow({
+    club: o.club, kind: KIND[o.kind] || "Application", title: o.title, sub: o.for_whom || o.how_to_apply,
+    when: o.deadline ? "<b>" + esc(new Date(o.deadline).toLocaleDateString([], { month: "short", day: "numeric" })) + "</b><span>" + esc(untilText(o.deadline)) + "</span>" : "<b>Open</b><span class='ok'>No deadline</span>",
+    url: o.apply_url || o.source_url, cta: o.apply_url ? "Apply" : "How to apply", primary: !!o.apply_url, cls: "opening"
+  });
+}
+// A club with several options due together shows as one row; open it to see each with its own link.
+function folded(list, opening, row) {
+  var groups = [], at = {};
+  list.forEach(function (i) {
+    var o = opening(i), k = i.club.slug + "|" + (o.deadline || "");
+    if (!(k in at)) { at[k] = groups.length; groups.push([]); }
+    groups[at[k]].push(i);
+  });
+  return groups.map(function (g) {
+    if (g.length < 4) return g.map(row).join("");
+    var first = row(g[0]), n = g.length;
+    var head = first.replace(/<p>[\s\S]*?<\/p>/, "<p>" + n + " options · tap to see each</p>").replace(/<a class="go[\s\S]*?<\/a><\/div>$/, '<span class="go btn">' + n + " options</span></div>");
+    return '<details class="fold"><summary>' + head + '</summary><div class="opts">' + g.map(function (i) {
+      var o = opening(i), url = o.state === "closed" ? null : o.apply_url || o.source_url;
+      return '<div class="opt"><div><h4>' + esc(o.title) + "</h4><p>" + esc(o.for_whom || "") +
+        (o.source_url && o.source_url !== url ? (o.for_whom ? " · " : "") + '<a href="' + esc(o.source_url) + '" target="_blank" rel="noopener">What it involves</a>' : "") + "</p></div>" +
+        (url ? '<a class="btn primary" href="' + esc(url) + '" target="_blank" rel="noopener">Apply</a>' : "") + "</div>";
+    }).join("") + "</div></details>";
+  }).join("");
+}
 function drawEvents(list) {
-  var day = list.filter(function (m) { return startOfDay(m.starts_at).getTime() === weekState.day.getTime(); });
+  var day = list.filter(function (m) { return startOfDay(m.at).getTime() === weekState.day.getTime(); });
   var label = weekState.day.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+  $("dayHead").innerHTML = "<h2>" + esc(label) + "</h2>" + (day.length ? '<span class="hint">' + day.length + (day.length === 1 ? " thing" : " things") + "</span>" : "");
   if (!day.length) {
-    $("events").innerHTML = '<div class="empty"><h3>Nothing on ' + esc(label) + "</h3><p>" +
-      (list.length ? "Pick a day with a dot." : "Clubs post meetings here when they use ClubCheck. Run a club? Claim its page to add yours.") + "</p></div>";
+    $("events").innerHTML = '<div class="empty"><h3>Nothing on this day</h3><p>' +
+      (list.length ? "Pick a day with a dot." : "Nothing posted this week yet. Check the open applications below.") + "</p></div>";
     return;
   }
-  $("events").innerHTML = day.map(function (m) {
-    return '<a class="event" href="#/club/' + esc(m.club.slug) + '"><div class="time">' + esc(fmtTime(m.starts_at)) + "<small>" + esc(fmtTime(m.ends_at)) + "</small></div>" +
-      logo(m.club) + "<div><h3>" + esc(m.title) + "</h3><p>" + esc(m.club.name) + (m.location ? " · " + esc(m.location) : "") + "</p></div></a>";
+  var rest = day.filter(function (i) { return i.type !== "deadline"; });
+  $("events").innerHTML = folded(day.filter(function (i) { return i.type === "deadline"; }), function (i) { return i.opening; }, function (i) {
+    return itemRow({ club: i.club, kind: "Due", title: i.opening.title, sub: i.opening.for_whom, when: "<b>" + esc(fmtTime(i.at)) + "</b><span>Deadline</span>",
+      url: i.opening.state === "closed" ? null : i.opening.apply_url || i.opening.source_url, cta: "Apply", primary: true, cls: "due" });
+  }) + rest.map(function (i) {
+    var t = "<b>" + esc(fmtTime(i.at)) + "</b>";
+    if (i.type === "deadline") return itemRow({ club: i.club, kind: "Due", title: i.opening.title, sub: i.opening.for_whom, when: t + "<span>Deadline</span>",
+      url: i.opening.state === "closed" ? null : i.opening.apply_url || i.opening.source_url, cta: "Apply", primary: true, cls: "due" });
+    if (i.type === "opens") return itemRow({ club: i.club, kind: "Opens", title: i.opening.title, sub: i.opening.for_whom, when: t + "<span class='ok'>Opens</span>",
+      url: i.opening.apply_url || i.opening.source_url, cta: "Apply" });
+    return itemRow({ club: i.club, kind: i.type === "event" ? "Event" : "Meeting", title: i.title, sub: i.location,
+      when: t + (i.ends_at ? "<span>until " + esc(fmtTime(i.ends_at)) + "</span>" : ""), url: i.url, cta: "Details" });
   }).join("");
 }
 
@@ -655,7 +737,7 @@ function viewMine() {
   ready.then(function () {
     var list = Object.keys(saved).map(function (s) { return bySlug[s]; }).filter(Boolean);
     if (!list.length) {
-      $("mine").innerHTML = '<div class="empty"><h3>No saved clubs yet</h3><p>Tap the heart on a club to save it. Track its application here, from interested to accepted.</p><a class="btn primary" style="margin-top:16px" href="#/">Explore clubs</a></div>';
+      $("mine").innerHTML = '<div class="empty"><h3>No saved clubs yet</h3><p>Tap the heart on a club to save it. Track its application here, from interested to accepted.</p><a class="btn primary" style="margin-top:16px" href="#/clubs">Browse clubs</a></div>';
       return;
     }
     list.sort(function (a, b) { return (open(a) ? new Date(a.apply_deadline) : 9e15) - (open(b) ? new Date(b.apply_deadline) : 9e15) || a.name.localeCompare(b.name); });
@@ -681,18 +763,18 @@ function viewMine() {
 function route() {
   var h = location.hash.replace(/^#\/?/, "");
   if (h.indexOf("club/") === 0) return { name: "club", slug: decodeURIComponent(h.slice(5)) };
-  if (h === "week") return { name: "week" };
+  if (h === "clubs") return { name: "explore" };
   if (h === "mine") return { name: "mine" };
-  return { name: "explore" };
+  return { name: "today" };
 }
 function render() {
   var r = route();
   document.title = "ClubCheck · Every UChicago club";
   document.querySelectorAll("#tabs a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("data-tab") === (r.name === "club" ? "explore" : r.name)); });
   if (r.name === "club") viewClub(r.slug);
-  else if (r.name === "week") viewWeek();
+  else if (r.name === "explore") viewExplore();
   else if (r.name === "mine") viewMine();
-  else viewExplore();
+  else viewToday();
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", render);
